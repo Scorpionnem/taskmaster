@@ -1,3 +1,4 @@
 #!/bin/bash
-sleep $1
-echo "	slept $1 sec"
+echo listening on port 6969
+nc -l 6969
+echo exiting
