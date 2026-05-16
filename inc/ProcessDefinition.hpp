@@ -52,7 +52,7 @@ struct	ProcessDefinition
 	int		restart_tries = 0;
 
 	// Which signal should be used to stop (i.e. exit gracefully) the program
-	int		stop_signal = 0;
+	int		stop_signal = SIGINT;
 
 	// How long to wait after a graceful stop before killing the program
 	double	max_stop_time = 0;

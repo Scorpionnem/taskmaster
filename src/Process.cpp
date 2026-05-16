@@ -105,7 +105,14 @@ void	Process::_update_running()
 
 void	Process::_update_stopped()
 {
-    
+	_return = 0;
+    _exited = false;
+
+	if (_restart)
+	{
+		_restart = false;
+		start();
+	}
 }
 
 std::ostream	&operator<<(std::ostream &s, const Process::State &state)
@@ -129,5 +136,5 @@ std::ostream	&operator<<(std::ostream &s, const Process::State &state)
         case Process::State::UNKNOWN:
             s << "UNKNOWN"; break;
     }
-    return (s);	
+    return (s);
 }

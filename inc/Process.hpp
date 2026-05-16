@@ -70,10 +70,58 @@ class	Process
 
 		int	start()
 		{
+			if (_state != State::STOPPED && _state != State::FATAL)
+			{
+				std::cout << "Process already running" << std::endl;
+				return (-1);
+			}
+
 			_transition(State::STARTING);
 
 			return (_start());
 		}
+		int	stop()
+		{
+			if (_state != State::RUNNING)
+			{
+				std::cout << "Process not running" << std::endl;
+				return (-1);
+			}
+
+			kill(_pid, _def->stop_signal);
+
+			_transition(State::STOPPING);
+			return (0);
+		}
+		int	restart()
+		{
+			_restart = true;
+			stop();
+			return (0);
+		}
+		int	status()
+		{
+			return (0);
+		}
+
+		void	update();
+
+		Process::State	state()
+		{
+			return (_state);
+		}
+	private:
+		void	_update_stopped();
+		void	_update_starting();
+		void	_update_running();
+		void	_update_exited();
+		void	_update_stopping();
+		void	_transition(Process::State next_state)
+		{
+			std::cout << "\rProcess " << _def->name << " transition : " << _state << " -> " << next_state << std::endl;
+			_state = next_state;
+		}
+
 		int	_start()
 		{
 			_start_timestamp = _time.get();
@@ -87,20 +135,6 @@ class	Process
 			execve(_def->cmd.c_str(), (char *const *)c_str_array(_def->av), (char *const *)c_str_array(_def->env));
 			exit(EXIT_FAILURE);
 		}
-
-		void	update();
-
-	private:
-		void	_update_stopped();
-		void	_update_starting();
-		void	_update_running();
-		void	_update_exited();
-		void	_update_stopping();
-		void	_transition(Process::State next_state)
-		{
-			std::cout << "Process " << _def->name << " transition : " << _state << " -> " << next_state << std::endl;
-			_state = next_state;
-		}
 	private:
 		ProcessDefinition	*_def = NULL;
 		pid_t					_pid = 0;
@@ -108,7 +142,7 @@ class	Process
 
 		Process::State		_state = State::STOPPED;
 		int		_retry_count;
-		
+
 		Chrono	_time;
 		double	_start_timestamp;
 		double	_stop_timestamp;
@@ -116,4 +150,6 @@ class	Process
 
 		int			_return = 0;
 		bool		_exited = false;
+
+		bool		_restart = false;
 };
