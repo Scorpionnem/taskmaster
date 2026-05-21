@@ -1,6 +1,9 @@
 obj/
+log/
 *.o
 *.d
 
 taskmaster
 en.subject.pdf
+
+compile_commands.json

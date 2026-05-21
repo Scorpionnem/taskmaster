@@ -10,6 +10,7 @@ INCLUDE_DIRS :=	inc/	\
 
 SRCS :=	src/main.cpp	\
 		src/Process.cpp	\
+		src/Logger.cpp
 
 ###
 
@@ -17,6 +18,7 @@ INCLUDE_DIRS :=	$(addprefix -I, $(INCLUDE_DIRS))
 
 ###
 
+LOG_DIR :=	log
 OBJ_DIR :=	obj
 
 OBJS =	$(SRCS:%.cpp=$(OBJ_DIR)/%.o)
@@ -31,6 +33,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo Compiling $(NAME)
+	@mkdir $(LOG_DIR)
 	@$(CXX) $(CXXFLAGS) $(LFLAGS) $(INCLUDE_DIRS) -o $@ $^
 
 $(OBJ_DIR)/%.o: %.cpp
@@ -43,6 +46,8 @@ re: fclean compile
 fclean: clean
 	@echo Removed $(NAME)
 	@rm -rf $(NAME)
+	@echo Removed $(LOG_DIR)
+	@rm -rf $(LOG_DIR)
 
 clean:
 	@echo Removed $(OBJ_DIR)
