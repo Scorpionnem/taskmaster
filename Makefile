@@ -10,7 +10,9 @@ INCLUDE_DIRS :=	inc/	\
 
 SRCS :=	src/main.cpp	\
 		src/Process.cpp	\
-		src/Logger.cpp
+		src/Logger.cpp \
+		src/JSON/JSONReader.cpp \
+		src/JSON/JSONUtils.cpp
 
 ###
 
@@ -33,7 +35,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo Compiling $(NAME)
-	@mkdir $(LOG_DIR)
+	@mkdir -p $(LOG_DIR)
 	@$(CXX) $(CXXFLAGS) $(LFLAGS) $(INCLUDE_DIRS) -o $@ $^
 
 $(OBJ_DIR)/%.o: %.cpp
