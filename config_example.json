@@ -1,0 +1,29 @@
+[
+    {
+        "command": ["/usr/bin/python3", "main.py"],
+
+        "num_procs": 2,
+        "auto_start": true,
+
+        "auto_restart": "unexpected",
+        "exitcodes": [0, 2],
+
+        "start_time": 5,
+        "start_retries": 3,
+
+        "stop_signal": "TERM",
+        "stop_time": 10,
+
+        "stdout": "./stdout.log",
+        "stderr": "./stderr.log",
+
+        "env": {
+            "USER": "mbatty",
+            "DATA": "123"
+        },
+
+        "working_dir": "/var/www/html",
+
+        "umask": "022"
+    }
+]
