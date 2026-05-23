@@ -74,6 +74,7 @@ class	Process
 		void	restart_backoff();
 		int		status();
 		void	update();
+		bool	is_alive();
 
 		Process::State	state() { return _state; }
 	private:

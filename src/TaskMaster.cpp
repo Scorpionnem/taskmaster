@@ -1,4 +1,7 @@
 #include "TaskMaster.hpp"
+#include "Process.hpp"
+#include <unistd.h>
+#include <vector>
 
 TaskMaster::TaskMaster(const std::string &configFile) {
 	_configFile = configFile;
@@ -67,6 +70,7 @@ void TaskMaster::_user_loop()
 		}
 		else
 			break ;
+		usleep(1000);
 	}
 }
 
@@ -130,6 +134,8 @@ void TaskMaster::_user_command(const std::string &input)
 	}
 	else if (command == "quit")
 		this->_stop();
+	else if (command == "reload")
+		this->_reload();
 	else {
 		if (!command.empty())
 			std::cout << "Command not found!" << std::endl;
@@ -139,4 +145,87 @@ void TaskMaster::_user_command(const std::string &input)
 void TaskMaster::_stop()
 {
 	_running = false;
+}
+
+void TaskMaster::_reload()
+{
+	std::cout << "Reloading config..." << std::endl;
+	std::map<std::string, TaskConfig *> configs = TaskConfig::get_configs(_configFile);
+
+	std::vector<std::string> taskToRemove;
+
+	// Check for existing tasks
+	for (auto task : _tasks)
+	{
+		std::string taskName = task.first;
+
+		// if the task is not in the new config
+		if (configs.find(taskName) == configs.end())
+		{
+			// stopping and free all processes and config
+			for (auto process : task.second.second)
+			{
+				if (process->is_alive())
+					process->stop();
+				delete process;
+			}
+			delete task.second.first;
+			taskToRemove.push_back(taskName);
+		}
+		// if the config have change
+		else if (*task.second.first != *configs[taskName])
+		{
+			// Deleting old processes
+			for (auto process : task.second.second)
+			{
+				if (process->is_alive())
+					process->stop();
+				delete process;
+			}
+			_tasks[taskName].second.clear();
+			delete task.second.first;
+
+			// Recreating processes
+			_tasks[taskName].first = configs[taskName];
+			for (uint i = 0; i < configs[taskName]->num_procs; i++)
+			{
+				Process *process = new Process(_tasks[taskName].first);
+				if (_tasks[taskName].first->auto_start)
+					process->start();
+				_tasks[taskName].second.push_back(process);
+			}
+			std::cout << "Task '" << taskName << "' restarted!" << std::endl;
+		}
+		else
+			std::cout << "Task '" << taskName << "' nothing to do." << std::endl;
+	}
+
+	// Check for the new task
+	for (auto config: configs)
+	{
+		std::string taskName = config.first;
+
+		if (_tasks.find(taskName) != _tasks.end())
+			continue;
+		
+		// New Task
+		std::vector<Process *> processes;
+		
+		for (uint i = 0; i < config.second->num_procs; i++)
+		{
+			Process *process = new Process(config.second);
+			if (config.second->auto_start)
+				process->start();
+			processes.push_back(process);
+		}
+
+		_tasks[config.first] = {config.second, processes};
+		std::cout << "Task '" << taskName << "' created!" << std::endl;
+	}
+
+	for (auto taskName : taskToRemove)
+	{
+		_tasks.erase(_tasks.find(taskName));
+		std::cout << "Task '" << taskName << "' removed!" << std::endl;
+	}
 }

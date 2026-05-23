@@ -236,6 +236,11 @@ int	Process::_start()
 	exit(EXIT_FAILURE);
 }
 
+bool Process::is_alive()
+{
+    return (_pid != 0);
+}
+
 std::ostream	&operator<<(std::ostream &s, const Process::State &state)
 {
     switch (state)

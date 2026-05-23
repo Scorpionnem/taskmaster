@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <fstream>
 #include <map>
+#include <iostream>
 
 
 TaskConfig::TaskConfig(void) {}
@@ -27,6 +28,11 @@ bool TaskConfig::operator==(const TaskConfig &other)
         && this->working_dir == other.working_dir
         && this->umask == other.umask
     );
+}
+
+bool TaskConfig::operator!=(const TaskConfig &other)
+{
+    return (!(*this == other));
 }
 
 std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName)
