@@ -12,6 +12,7 @@
 #include <string>
 
 #include "Chrono.hpp"
+#include "Logger.hpp"
 #include "TaskConfig.hpp"
 
 inline const char	**c_str_array(const std::vector<std::string> &vec)
@@ -121,7 +122,7 @@ class	Process
 		void	_update_backoff();
 		void	_transition(Process::State next_state)
 		{
-			std::cout << "\rProcess " << _config->name << " transition : " << _state << " -> " << next_state << std::endl;
+			logger << Logger::DEBUG << "Process " << _config->name << " transition : " << _state << " -> " << next_state << ENDL;
 			_state = next_state;
 		}
 

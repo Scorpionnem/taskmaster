@@ -6,7 +6,7 @@
 /*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 22:59:59 by ehode             #+#    #+#             */
-/*   Updated: 2026/05/21 20:43:54 by ehode            ###   ########.fr       */
+/*   Updated: 2026/05/23 17:15:20 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,24 +46,6 @@ void Logger::setLevel(Level level) {
 	_level = level;
 }
 
-std::string Logger::getColor(Level level) {
-	switch (level)
-	{
-		case DEBUG:
-			return(BLUE);
-		case INFO:
-			return(GREEN);
-		case WARNING:
-			return(YELLOW);
-		case ERROR:
-			return(RED);
-		case CRITICAL:
-			return (DARK_RED);
-		default:
-			return (WHITE);
-	}
-}
-
 std::string Logger::getLevelName(Level level) {
 	switch (level)
 	{
@@ -88,12 +70,7 @@ void Logger::log(Level level, std::string const &message) {
 
 	std::string currentTime = getFormatedTime("%Y-%m-%d %H:%M:%S");
 	std::string levelName = getLevelName(level);
-	std::string color = getColor(level);
 
-	if (level == ERROR || level == CRITICAL)
-		std::cerr << "[" << currentTime << "] " << color << "[" << levelName << "]" RESET " " << message << std::endl;
-	else
-		std::cout << "[" << currentTime << "] " << color << "[" << levelName << "]" RESET " " << message << std::endl;
 	if (_file.is_open())
 		_file << "[" << currentTime << "] " << "[" << levelName << "] " << message << std::endl;
 }
