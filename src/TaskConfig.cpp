@@ -3,7 +3,6 @@
 #include "Logger.hpp"
 
 #include <signal.h>
-#include <iostream>
 #include <fstream>
 #include <map>
 

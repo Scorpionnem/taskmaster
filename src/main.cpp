@@ -6,7 +6,7 @@
 /*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 12:30:09 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/23 17:05:19 by ehode            ###   ########.fr       */
+/*   Updated: 2026/05/23 17:12:52 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ class	Taskmaster
 						process->start();
 					processes.push_back(process);
 				}
+
+				_tasks[config.first] = {config.second, processes};
 			}
 			
 			_user = std::thread([this](){this->_user_loop();});
