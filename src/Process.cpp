@@ -258,7 +258,7 @@ int	Process::_start()
 
 bool Process::is_alive()
 {
-    return (_pid != 0);
+    return (_state != State::STOPPED);
 }
 
 std::ostream	&operator<<(std::ostream &s, const Process::State &state)

@@ -121,6 +121,7 @@ void TaskMaster::_stop()
 void TaskMaster::_reload()
 {
 	std::cout << "Reloading config..." << std::endl;
+	logger << Logger::INFO << "Reloading config..." << ENDL;
 	std::map<std::string, TaskConfig *> configs = TaskConfig::get_configs(_configFile);
 
 	std::vector<std::string> taskToRemove;
@@ -133,7 +134,9 @@ void TaskMaster::_reload()
 		// if the task is not in the new config
 		if (configs.find(taskName) == configs.end())
 		{
+			logger << Logger::DEBUG << "Removing task '" << taskName << "'..." << ENDL;
 			// stopping and free all processes and config
+			logger << Logger::DEBUG << "Stopping all processes of task '" << taskName << "'..." << ENDL;
 			for (auto process : task.second.second)
 			{
 				if (process->is_alive())
@@ -147,6 +150,7 @@ void TaskMaster::_reload()
 		else if (*task.second.first != *configs[taskName])
 		{
 			// Deleting old processes
+			logger << Logger::DEBUG << "Stopping all processes of task '" << taskName << "'..." << ENDL;
 			for (auto process : task.second.second)
 			{
 				if (process->is_alive())
@@ -157,6 +161,7 @@ void TaskMaster::_reload()
 			delete task.second.first;
 
 			// Recreating processes
+			logger << Logger::DEBUG << "Recreate processes of task '" << taskName << "'..." << ENDL;
 			_tasks[taskName].first = configs[taskName];
 			for (uint i = 0; i < configs[taskName]->num_procs; i++)
 			{
@@ -175,13 +180,15 @@ void TaskMaster::_reload()
 	for (auto config: configs)
 	{
 		std::string taskName = config.first;
-
+		
 		if (_tasks.find(taskName) != _tasks.end())
 			continue;
-		
+
 		// New Task
+		logger << Logger::DEBUG << "Creating new task '" << taskName << "'..." << ENDL;
 		std::vector<Process *> processes;
 		
+		logger << Logger::DEBUG << "Starting processes of task '" << taskName << "'..." << ENDL;
 		for (uint i = 0; i < config.second->num_procs; i++)
 		{
 			Process *process = new Process(config.second);
@@ -199,6 +206,7 @@ void TaskMaster::_reload()
 		_tasks.erase(_tasks.find(taskName));
 		std::cout << "Task '" << taskName << "' removed!" << std::endl;
 	}
+	logger << Logger::INFO << "Config reloaded!" << ENDL;
 	std::cout << "Config reloaded!" << std::endl;
 }
 
