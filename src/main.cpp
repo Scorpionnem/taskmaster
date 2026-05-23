@@ -6,7 +6,7 @@
 /*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 12:30:09 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/23 17:39:25 by ehode            ###   ########.fr       */
+/*   Updated: 2026/05/23 20:57:12 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ class	Taskmaster
 
 			if (command == "help")
 			{
-				std::cout << '\r' << "Available commands:\n  start <task_name>\n  stop <task_name>\n  restart <task_name>" << std::endl;
+				std::cout << '\r' << "Available commands:\n\tstart <task_name>\n\tstop <task_name>\n\trestart <task_name>" << std::endl;
 				return ;
 			}
 			else if (command == "start")
@@ -144,6 +144,10 @@ class	Taskmaster
 					}
 				}
 			}
+			else {
+				if (!command.empty())
+					std::cout << "Command not found!" << std::endl;
+			}
 		}
 
 	private:
@@ -163,7 +167,7 @@ int	main(int ac, char **av, char **envp)
 {
 	if (ac != 2)
 	{
-		logger << Logger::ERROR << "No config file provided!" << ENDL;
+		std::cerr << "No config file provided!" << std::endl;
 		return (1);
 	} 
 	

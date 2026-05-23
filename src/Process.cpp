@@ -1,4 +1,5 @@
 #include "Process.hpp"
+#include "Logger.hpp"
 #include "TaskConfig.hpp"
 #include <fcntl.h>
 
@@ -6,7 +7,7 @@ int Process::start()
 {
 	if (_state != State::STOPPED && _state != State::FATAL)
 	{
-		std::cout << "Process already running" << std::endl;
+		logger << Logger::ERROR << "Process already running!" << ENDL;
 		return (-1);
 	}
 
@@ -19,7 +20,7 @@ int	Process::stop()
 {
 	if (_pid == 0)
 	{
-		std::cout << "Process not running" << std::endl;
+		logger << Logger::ERROR << "Process not running" << ENDL;
 		return (-1);
 	}
 
