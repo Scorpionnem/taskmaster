@@ -6,7 +6,7 @@
 /*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 12:30:09 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/23 21:17:36 by ehode            ###   ########.fr       */
+/*   Updated: 2026/05/23 21:30:15 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ int	main(int ac, char **av, char **envp)
 		return (1);
 	} 
 	
-	TaskMaster	systemd_wanna_be;
+	TaskMaster	systemd_wanna_be(av[1]);
 	try
 	{
-		systemd_wanna_be.start(av[1]);
+		systemd_wanna_be.start();
 	}
 	catch (const std::exception &e)
 	{

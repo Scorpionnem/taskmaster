@@ -1,7 +1,7 @@
 #include "TaskMaster.hpp"
 
-TaskMaster::TaskMaster(void) {
-	_running = true;
+TaskMaster::TaskMaster(const std::string &configFile) {
+	_configFile = configFile;
 }
 
 TaskMaster::~TaskMaster(void) {
@@ -13,9 +13,11 @@ TaskMaster::~TaskMaster(void) {
 	}
 }
 
-void TaskMaster::start(const std::string &config_file)
+void TaskMaster::start(void)
 {
-	std::map<std::string, TaskConfig *> configs = TaskConfig::get_configs(config_file);
+	_running = true;
+
+	std::map<std::string, TaskConfig *> configs = TaskConfig::get_configs(_configFile);
 
 	for (auto config : configs)
 	{

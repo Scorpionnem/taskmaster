@@ -10,22 +10,23 @@
 class	TaskMaster
 {
 	public:
-		TaskMaster(void);
+		TaskMaster(const std::string &configFile);
 		~TaskMaster(void);
 
-		void	start(const std::string &config_file);
+		void	start(void);
 
 	private:
 		void	_loop();
 		void	_user_loop();
 		void	_user_command(const std::string &input);
 		void	_stop();
+		void	_reload();
 
 	private:
-
+		std::string _configFile;
 		std::map<std::string, std::pair<TaskConfig *, std::vector<Process *>>> _tasks;
 		std::mutex	_lock;
 		std::thread	_user;
-
+		
 		std::atomic_bool	_running;
 };
