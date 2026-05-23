@@ -21,6 +21,7 @@ class	TaskMaster
 		void	_user_command(const std::string &input);
 		void	_stop();
 		void	_reload();
+		void	_status(std::istringstream &s);
 
 	private:
 		std::string _configFile;

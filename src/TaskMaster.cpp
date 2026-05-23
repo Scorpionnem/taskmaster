@@ -94,6 +94,7 @@ void TaskMaster::_user_command(const std::string &input)
 	else if (command == "stop")
 	{
 		// stop [task name]
+		return ;
 	}
 	else if (command == "restart")
 	{
@@ -101,37 +102,7 @@ void TaskMaster::_user_command(const std::string &input)
 		return ;
 	}
 	else if (command == "status")
-	{
-		std::string arg;
-		
-		if (s >> arg)
-		{
-			if (_tasks.find(arg) == _tasks.end())
-			{
-				std::cerr << "No task '" << arg << "' found!" << std::endl;
-				return ;
-			}
-			std::cout << "- " << arg << std::endl;
-			uint i = 0;
-			for (auto process: _tasks[arg].second)
-			{
-				std::cout << "\t" << i << ": " << process->state() << std::endl;
-				i++;
-			}
-		}
-		else {
-			for (auto task : _tasks)
-			{
-				std::cout << "- " << task.first << std::endl;
-				uint i = 0;
-				for (auto process: task.second.second)
-				{
-					std::cout << "\t" << i << ": " << process->state() << std::endl;
-					i++;
-				}
-			}
-		}
-	}
+		this->_status(s);
 	else if (command == "quit")
 		this->_stop();
 	else if (command == "reload")
@@ -227,5 +198,45 @@ void TaskMaster::_reload()
 	{
 		_tasks.erase(_tasks.find(taskName));
 		std::cout << "Task '" << taskName << "' removed!" << std::endl;
+	}
+	std::cout << "Config reloaded!" << std::endl;
+}
+
+void TaskMaster::_status(std::istringstream &s)
+{
+	if (_tasks.size() == 0)
+	{
+		std::cout << "No task registered!" << std::endl;
+		return;
+	}
+
+	std::string arg;
+	
+	if (s >> arg)
+	{
+		if (_tasks.find(arg) == _tasks.end())
+		{
+			std::cerr << "No task '" << arg << "' found!" << std::endl;
+			return ;
+		}
+		std::cout << "- " << arg << std::endl;
+		uint i = 0;
+		for (auto process: _tasks[arg].second)
+		{
+			std::cout << "\t" << i << ": " << process->state() << std::endl;
+			i++;
+		}
+	}
+	else {
+		for (auto task : _tasks)
+		{
+			std::cout << "- " << task.first << std::endl;
+			uint i = 0;
+			for (auto process: task.second.second)
+			{
+				std::cout << "\t" << i << ": " << process->state() << std::endl;
+				i++;
+			}
+		}
 	}
 }
