@@ -6,7 +6,7 @@
 /*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 12:30:09 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/23 20:57:12 by ehode            ###   ########.fr       */
+/*   Updated: 2026/05/23 21:04:06 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,14 @@ class	Taskmaster
 		Taskmaster() {
 			_running = true;
 		}
-		~Taskmaster() {}
+		~Taskmaster() {
+			for (auto task : _tasks)
+			{
+				delete task.second.first;
+				for (auto process : task.second.second)
+					delete process;
+			}
+		}
 
 		void	start(const std::string &config_file)
 		{
@@ -68,6 +75,7 @@ class	Taskmaster
 						process->update();
 				_lock.unlock();
 			}
+			_user.join(); // wait for user to finish
 		}
 		void	_user_loop()
 		{
@@ -144,6 +152,8 @@ class	Taskmaster
 					}
 				}
 			}
+			else if (command == "quit")
+				_running = false;
 			else {
 				if (!command.empty())
 					std::cout << "Command not found!" << std::endl;
