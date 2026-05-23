@@ -3,59 +3,51 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
+/*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 12:30:09 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/16 11:52:58 by mbatty           ###   ########.fr       */
+/*   Updated: 2026/05/23 17:05:19 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Logger.hpp"
 #include "Process.hpp"
+#include "TaskConfig.hpp"
 
+#include <map>
+#include <string>
 #include <thread>
 #include <atomic>
 #include <mutex>
 #include <sstream>
-
-void	shell_loop()
-{
-	while (1)
-	{
-		std::cout << "caca" << std::endl;
-	}
-}
+#include <utility>
+#include <vector>
 
 class	Taskmaster
 {
 	public:
-		Taskmaster() {}
+		Taskmaster() {
+			_running = true;
+		}
 		~Taskmaster() {}
 
 		void	start(const std::string &config_file)
 		{
-			ProcessDefinition	def;
+			std::map<std::string, TaskConfig *> configs = TaskConfig::get_configs(config_file);
 
-			def.name = "listener";
-			def.cmd = "./test.sh";
-			def.av = {"./test.sh"};
-			def.env = {};
-
-			def.processes_count = 1;
-
-			def.start_at_launch = true;
-			def.restart_mode = ProcessDefinition::RestartMode::ALWAYS;
-			def.expected_exit_code = {0};
-			def.run_time_validity = 0;
-			def.restart_tries = 0;
-			def.stop_signal = SIGINT;
-			def.max_stop_time = 1;
-
-			_running = true;
-
-			proc = new Process(&def);
-
-			proc->start();
-
+			for (auto config : configs)
+			{
+				std::vector<Process *> processes;
+				
+				for (uint i = 0; i < config.second->num_procs; i++)
+				{
+					Process *process = new Process(config.second);
+					if (config.second->auto_start)
+						process->start();
+					processes.push_back(process);
+				}
+			}
+			
 			_user = std::thread([this](){this->_user_loop();});
 
 			_loop();
@@ -67,7 +59,9 @@ class	Taskmaster
 			while (_running)
 			{
 				_lock.lock();
-				proc->update();
+				for (auto task : _tasks)
+					for (auto process : task.second.second)
+						process->update();
 				_lock.unlock();
 			}
 		}
@@ -97,22 +91,21 @@ class	Taskmaster
 
 			if (command == "help")
 			{
-				std::cout << '\r' << "Available commands:\n  start <process_name>\n  stop <process_name>\n  restart <process_name>" << std::endl;
+				std::cout << '\r' << "Available commands:\n  start <task_name>\n  stop <task_name>\n  restart <task_name>" << std::endl;
 				return ;
 			}
 			if (command == "start")
 			{
-				proc->start();
+				// start [task name]
 				return ;
 			}
 			if (command == "stop")
 			{
-				proc->stop();
-				return ;
+				// stop [task name]
 			}
 			if (command == "restart")
 			{
-				proc->restart();
+				// restart [task name]
 				return ;
 			}
 		}
@@ -122,8 +115,8 @@ class	Taskmaster
 		{
 			_running = false;
 		}
-		Process	*proc;
 
+		std::map<std::string, std::pair<TaskConfig *, std::vector<Process *>>> _tasks;
 		std::mutex	_lock;
 		std::thread	_user;
 
@@ -132,11 +125,16 @@ class	Taskmaster
 
 int	main(int ac, char **av, char **envp)
 {
+	if (ac != 2)
+	{
+		logger << Logger::ERROR << "No config file provided!" << ENDL;
+		return (1);
+	} 
+	
 	Taskmaster	systemd_wanna_be;
-
 	try
 	{
-		systemd_wanna_be.start("");
+		systemd_wanna_be.start(av[1]);
 	}
 	catch (const std::exception &e)
 	{

@@ -10,6 +10,7 @@ INCLUDE_DIRS :=	inc/	\
 
 SRCS :=	src/main.cpp	\
 		src/Process.cpp	\
+		src/TaskConfig.cpp	\
 		src/Logger.cpp \
 		src/JSON/JSONReader.cpp \
 		src/JSON/JSONUtils.cpp
