@@ -5,7 +5,6 @@
 #include <signal.h>
 #include <fstream>
 #include <map>
-#include <iostream>
 
 
 TaskConfig::TaskConfig(void) {}

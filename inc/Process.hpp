@@ -12,30 +12,11 @@
 #include <fcntl.h>
 #include <string>
 #include <unistd.h>
+#include <string.h>
 
 #include "Chrono.hpp"
 #include "Logger.hpp"
 #include "TaskConfig.hpp"
-
-inline const char	**c_str_array(const std::vector<std::string> &vec)
-{
-	const char	**res = new const char *[vec.size() + 1];
-
-	int	i = 0;
-	for (const std::string &s : vec)
-		res[i++] = s.c_str();
-	res[i] = NULL;
-	return (res);
-}
-
-inline const char	**get_env(const std::map<std::string, std::string> env)
-{
-	std::vector<std::string> new_env;
-
-	for (auto key : env)
-		new_env.push_back(key.first + "=" + key.second);
-	return (c_str_array(new_env));
-}
 
 class	Process
 {

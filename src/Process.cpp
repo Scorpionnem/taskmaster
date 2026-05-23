@@ -3,6 +3,26 @@
 #include "TaskConfig.hpp"
 #include <fcntl.h>
 
+inline const char	**c_str_array(const std::vector<std::string> &vec)
+{
+	const char	**res = new const char *[vec.size() + 1];
+
+	int	i = 0;
+	for (const std::string &s : vec)
+		res[i++] = strdup(s.c_str());
+	res[i] = NULL;
+	return (res);
+}
+
+inline const char	**get_env(const std::map<std::string, std::string> env)
+{
+	std::vector<std::string> new_env;
+
+	for (auto key : env)
+		new_env.push_back(key.first + "=" + key.second);
+	return (c_str_array(new_env));
+}
+
 int Process::start()
 {
 	if (_state != State::STOPPED && _state != State::FATAL)
