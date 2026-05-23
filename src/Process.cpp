@@ -232,8 +232,8 @@ int	Process::_start()
 	if (_pid != 0)
 		return (_pid);
     
-    int fd_out = open(_config->stdout_.c_str(), O_APPEND | O_CREAT | O_WRONLY);
-    int fd_err = open(_config->stderr_.c_str(), O_APPEND | O_CREAT | O_WRONLY);
+    int fd_out = open(_config->stdout_.c_str(), O_APPEND | O_CREAT | O_WRONLY, 0644);
+    int fd_err = open(_config->stderr_.c_str(), O_APPEND | O_CREAT | O_WRONLY, 0644);
     
     if (fd_out != -1)
     {
