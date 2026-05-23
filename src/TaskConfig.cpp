@@ -84,8 +84,10 @@ std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName
             config->start_retries = configData["start_retries"].toInt();
             config->stop_signal = signalMap[configData["stop_signal"].toString()];
             config->stop_time = configData["stop_time"].toInt();
-            config->stdout_ = configData["stdout"].toString();
-            config->stderr_ = configData["stderr"].toString();
+            if (configData["stdout"].isString())
+                config->stdout_ = configData["stdout"].toString();
+            if (configData["stderr"].isString())
+                config->stderr_ = configData["stderr"].toString();
             for (auto key : configData["env"].keys())
                 config->env[key] = configData["env"][key].toString();
             config->working_dir = configData["working_dir"].toString();
