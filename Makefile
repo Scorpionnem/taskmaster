@@ -9,6 +9,7 @@ LFLAGS :=
 INCLUDE_DIRS :=	inc/	\
 
 SRCS :=	src/main.cpp	\
+		src/TaskMaster.cpp	\
 		src/Process.cpp	\
 		src/TaskConfig.cpp	\
 		src/Logger.cpp \
