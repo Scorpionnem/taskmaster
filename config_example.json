@@ -1,29 +1,31 @@
-[
-    {
-        "command": ["/usr/bin/python3", "main.py"],
+{
+    "tasks": {
+        "server":  {
+            "cmds": ["/usr/bin/python3", "main.py"],
 
-        "num_procs": 2,
-        "auto_start": true,
+            "num_procs": 2,
+            "auto_start": true,
 
-        "auto_restart": "unexpected",
-        "exitcodes": [0, 2],
+            "auto_restart": "unexpected",
+            "exitcodes": [0, 2],
 
-        "start_time": 5,
-        "start_retries": 3,
+            "start_time": 5,
+            "start_retries": 3,
 
-        "stop_signal": "TERM",
-        "stop_time": 10,
+            "stop_signal": "TERM",
+            "stop_time": 10,
 
-        "stdout": "./stdout.log",
-        "stderr": "./stderr.log",
+            "stdout": "./stdout.log",
+            "stderr": "./stderr.log",
 
-        "env": {
-            "USER": "mbatty",
-            "DATA": "123"
-        },
+            "env": {
+                "USER": "mbatty",
+                "DATA": "123"
+            },
 
-        "working_dir": "/var/www/html",
+            "working_dir": "/var/www/html",
 
-        "umask": "022"
+            "umask": "022"
+        }
     }
-]
+}
