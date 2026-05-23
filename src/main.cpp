@@ -6,7 +6,7 @@
 /*   By: ehode <ehode@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 12:30:09 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/23 17:12:52 by ehode            ###   ########.fr       */
+/*   Updated: 2026/05/23 17:39:25 by ehode            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "Process.hpp"
 #include "TaskConfig.hpp"
 
+#include <iostream>
+#include <iterator>
 #include <map>
 #include <string>
 #include <thread>
@@ -96,19 +98,51 @@ class	Taskmaster
 				std::cout << '\r' << "Available commands:\n  start <task_name>\n  stop <task_name>\n  restart <task_name>" << std::endl;
 				return ;
 			}
-			if (command == "start")
+			else if (command == "start")
 			{
 				// start [task name]
 				return ;
 			}
-			if (command == "stop")
+			else if (command == "stop")
 			{
 				// stop [task name]
 			}
-			if (command == "restart")
+			else if (command == "restart")
 			{
 				// restart [task name]
 				return ;
+			}
+			else if (command == "status")
+			{
+				std::string arg;
+				
+				if (s >> arg)
+				{
+					if (_tasks.find(arg) == _tasks.end())
+					{
+						std::cerr << "No task '" << arg << "' found!" << std::endl;
+						return ;
+					}
+					std::cout << "- " << arg << std::endl;
+					uint i = 0;
+					for (auto process: _tasks[arg].second)
+					{
+						std::cout << "\t" << i << ": " << process->state() << std::endl;
+						i++;
+					}
+				}
+				else {
+					for (auto task : _tasks)
+					{
+						std::cout << "- " << task.first << std::endl;
+						uint i = 0;
+						for (auto process: task.second.second)
+						{
+							std::cout << "\t" << i << ": " << process->state() << std::endl;
+							i++;
+						}
+					}
+				}
 			}
 		}
 
