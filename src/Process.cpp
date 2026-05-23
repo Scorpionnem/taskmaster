@@ -24,6 +24,8 @@ void	Process::update()
             _update_exited(); break;
         case State::STOPPING:
             _update_stopping(); break;
+		case State::BACKOFF:
+            _update_backoff(); break;
     }
 }
 
@@ -48,6 +50,21 @@ void	Process::_update_starting()
 }
 
 /*
+	retry timer expires			->	STARTING
+	too many retries			->	FATAL
+*/
+void	Process::_update_backoff()
+{
+	if (_retry_count >= _def->restart_tries)
+	{
+        _transition(State::EXITED);
+		return ;
+	}
+	else
+		restart_backoff();
+}
+
+/*
     autorestart					->	STARTING
     unexpected exit				->	STARTING
     else						->	STOPPED
@@ -59,12 +76,15 @@ void	Process::_update_exited()
     _return = 0;
     _exited = false;
 
-    if (_def->restart_mode == ProcessDefinition::RestartMode::ALWAYS
+    if ((_def->restart_mode == ProcessDefinition::RestartMode::ALWAYS)
         || !expected && _def->restart_mode == ProcessDefinition::RestartMode::ON_ERROR)
     {
-        _start();
-        _transition(State::STARTING);
-        return ;
+		if (_def->restart_tries == 0 || _retry_count < _def->restart_tries)
+		{
+			_start();
+			_transition(State::STARTING);
+			return ;
+		}
     }
 
     _transition(State::STOPPED);
@@ -103,6 +123,10 @@ void	Process::_update_running()
     }
 }
 
+/*
+	start command				->	STARTING
+	autostart 					->	STARTING
+*/
 void	Process::_update_stopped()
 {
 	_return = 0;
@@ -112,6 +136,15 @@ void	Process::_update_stopped()
 	{
 		_restart = false;
 		start();
+		return ;
+	}
+	if (_def->restart_mode == ProcessDefinition::RestartMode::ALWAYS)
+	{
+		if (_def->restart_tries == 0 || _retry_count < _def->restart_tries)
+		{
+			start();
+			return ;
+		}
 	}
 }
 

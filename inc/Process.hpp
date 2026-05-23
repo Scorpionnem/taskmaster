@@ -46,14 +46,6 @@ class	Process
 		/*
 			Transitions:
 
-			STOPPED:
-				start command				->	STARTING
-				autostart 					->	STARTING
-
-			BACKOFF:
-				retry timer expires			->	STARTING
-				too many retries			->	FATAL
-
 			FATAL:
 				start command				->	STARTING
 		*/
@@ -82,7 +74,7 @@ class	Process
 		}
 		int	stop()
 		{
-			if (_state != State::RUNNING)
+			if (_pid == 0)
 			{
 				std::cout << "Process not running" << std::endl;
 				return (-1);
@@ -98,6 +90,11 @@ class	Process
 			_restart = true;
 			stop();
 			return (0);
+		}
+		void	restart_backoff()
+		{
+			_retry_count++;
+			restart();
 		}
 		int	status()
 		{
@@ -116,6 +113,7 @@ class	Process
 		void	_update_running();
 		void	_update_exited();
 		void	_update_stopping();
+		void	_update_backoff();
 		void	_transition(Process::State next_state)
 		{
 			std::cout << "\rProcess " << _def->name << " transition : " << _state << " -> " << next_state << std::endl;
@@ -141,7 +139,7 @@ class	Process
 		int						_id = 0;
 
 		Process::State		_state = State::STOPPED;
-		int		_retry_count;
+		int		_retry_count = 0;
 
 		Chrono	_time;
 		double	_start_timestamp;
