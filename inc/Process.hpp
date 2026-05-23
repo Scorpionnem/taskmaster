@@ -1,20 +1,18 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <cstdlib>
-#include <unordered_map>
 #include <unistd.h>
-#include <cstdint>
 #include <sys/wait.h>
 #include <ctime>
-#include <algorithm>
 #include <iostream>
 #include <string>
 
-#include "ProcessDefinition.hpp"
 #include "Chrono.hpp"
+#include "TaskConfig.hpp"
 
 inline const char	**c_str_array(const std::vector<std::string> &vec)
 {
@@ -25,6 +23,15 @@ inline const char	**c_str_array(const std::vector<std::string> &vec)
 		res[i++] = s.c_str();
 	res[i] = NULL;
 	return (res);
+}
+
+inline const char	**get_env(const std::map<std::string, std::string> env)
+{
+	std::vector<std::string> new_env;
+
+	for (auto key : env)
+		new_env.push_back(key.first + "=" + key.second);
+	return (c_str_array(new_env));
 }
 
 class	Process
@@ -50,11 +57,9 @@ class	Process
 				start command				->	STARTING
 		*/
 	public:
-		Process(ProcessDefinition *def)
+		Process(TaskConfig *config)
 		{
-			_def = def;
-
-			_def->register_process(this);
+			_config = config;
 
 			_time.start();
 		}
@@ -80,7 +85,7 @@ class	Process
 				return (-1);
 			}
 
-			kill(_pid, _def->stop_signal);
+			kill(_pid, _config->stop_signal);
 
 			_transition(State::STOPPING);
 			return (0);
@@ -116,7 +121,7 @@ class	Process
 		void	_update_backoff();
 		void	_transition(Process::State next_state)
 		{
-			std::cout << "\rProcess " << _def->name << " transition : " << _state << " -> " << next_state << std::endl;
+			std::cout << "\rProcess " << _config->name << " transition : " << _state << " -> " << next_state << std::endl;
 			_state = next_state;
 		}
 
@@ -130,11 +135,11 @@ class	Process
 			if (_pid != 0)
 				return (_pid);
 
-			execve(_def->cmd.c_str(), (char *const *)c_str_array(_def->av), (char *const *)c_str_array(_def->env));
+			execve(_config->cmds[0].c_str(), (char *const *)c_str_array(_config->cmds), (char *const *)get_env(_config->env));
 			exit(EXIT_FAILURE);
 		}
 	private:
-		ProcessDefinition	*_def = NULL;
+		TaskConfig	*_config = NULL;
 		pid_t					_pid = 0;
 		int						_id = 0;
 

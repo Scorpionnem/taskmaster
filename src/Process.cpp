@@ -1,4 +1,5 @@
 #include "Process.hpp"
+#include "TaskConfig.hpp"
 
 void	Process::update()
 {
@@ -42,7 +43,7 @@ void	Process::_update_starting()
         _transition(State::BACKOFF);
         return ;
     }
-    if (_time.get() - _start_timestamp > _def->run_time_validity)
+    if (_time.get() - _start_timestamp > _config->start_time)
     {
         _transition(State::RUNNING);
         return ;
@@ -55,7 +56,7 @@ void	Process::_update_starting()
 */
 void	Process::_update_backoff()
 {
-	if (_retry_count >= _def->restart_tries)
+	if (_retry_count >= _config->start_retries)
 	{
         _transition(State::EXITED);
 		return ;
@@ -71,15 +72,15 @@ void	Process::_update_backoff()
 */
 void	Process::_update_exited()
 {
-    bool	expected = std::find(_def->expected_exit_code.begin(), _def->expected_exit_code.end(), _return) != _def->expected_exit_code.end();
+    bool	expected = std::find(_config->exit_codes.begin(), _config->exit_codes.end(), _return) != _config->exit_codes.end();
 
     _return = 0;
     _exited = false;
 
-    if ((_def->restart_mode == ProcessDefinition::RestartMode::ALWAYS)
-        || !expected && _def->restart_mode == ProcessDefinition::RestartMode::ON_ERROR)
+    if ((_config->auto_restart == TaskConfig::RestartMode::ALWAYS)
+        || !expected && _config->auto_restart == TaskConfig::RestartMode::ON_ERROR)
     {
-		if (_def->restart_tries == 0 || _retry_count < _def->restart_tries)
+		if (_config->start_retries == 0 || _retry_count < _config->start_retries)
 		{
 			_start();
 			_transition(State::STARTING);
@@ -102,7 +103,7 @@ void	Process::_update_stopping()
         _transition(State::STOPPED);
         return ;
     }
-    if (_time.get() - _stop_timestamp > _def->max_stop_time)
+    if (_time.get() - _stop_timestamp > _config->stop_time)
     {
         kill(_pid, SIGKILL);
         return ;
@@ -138,9 +139,9 @@ void	Process::_update_stopped()
 		start();
 		return ;
 	}
-	if (_def->restart_mode == ProcessDefinition::RestartMode::ALWAYS)
+	if (_config->auto_restart == TaskConfig::RestartMode::ALWAYS)
 	{
-		if (_def->restart_tries == 0 || _retry_count < _def->restart_tries)
+		if (_config->start_retries == 0 || _retry_count < _config->start_retries)
 		{
 			start();
 			return ;
