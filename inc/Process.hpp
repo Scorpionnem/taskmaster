@@ -8,8 +8,10 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <ctime>
-#include <iostream>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <string>
+#include <unistd.h>
 
 #include "Chrono.hpp"
 #include "Logger.hpp"
@@ -66,53 +68,14 @@ class	Process
 		}
 		~Process() {}
 
-		int	start()
-		{
-			if (_state != State::STOPPED && _state != State::FATAL)
-			{
-				std::cout << "Process already running" << std::endl;
-				return (-1);
-			}
-
-			_transition(State::STARTING);
-
-			return (_start());
-		}
-		int	stop()
-		{
-			if (_pid == 0)
-			{
-				std::cout << "Process not running" << std::endl;
-				return (-1);
-			}
-
-			kill(_pid, _config->stop_signal);
-
-			_transition(State::STOPPING);
-			return (0);
-		}
-		int	restart()
-		{
-			_restart = true;
-			stop();
-			return (0);
-		}
-		void	restart_backoff()
-		{
-			_retry_count++;
-			restart();
-		}
-		int	status()
-		{
-			return (0);
-		}
-
+		int		start();
+		int		stop();
+		int		restart();
+		void	restart_backoff();
+		int		status();
 		void	update();
 
-		Process::State	state()
-		{
-			return (_state);
-		}
+		Process::State	state() { return _state; }
 	private:
 		void	_update_stopped();
 		void	_update_starting();
@@ -120,25 +83,9 @@ class	Process
 		void	_update_exited();
 		void	_update_stopping();
 		void	_update_backoff();
-		void	_transition(Process::State next_state)
-		{
-			logger << Logger::DEBUG << "Process " << _config->name << " transition : " << _state << " -> " << next_state << ENDL;
-			_state = next_state;
-		}
+		void	_transition(Process::State next_state);
 
-		int	_start()
-		{
-			_start_timestamp = _time.get();
-
-			_pid = fork();
-			if (_pid == -1)
-				return (-1);
-			if (_pid != 0)
-				return (_pid);
-
-			execve(_config->cmds[0].c_str(), (char *const *)c_str_array(_config->cmds), (char *const *)get_env(_config->env));
-			exit(EXIT_FAILURE);
-		}
+		int	_start();
 	private:
 		TaskConfig	*_config = NULL;
 		pid_t					_pid = 0;

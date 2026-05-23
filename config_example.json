@@ -3,13 +3,13 @@
         "server":  {
             "cmds": ["/usr/bin/python3", "main.py"],
 
-            "num_procs": 1,
+            "num_procs": 10,
             "auto_start": true,
 
             "auto_restart": "on_error",
             "exit_codes": [0, 2],
 
-            "start_time": 5,
+            "start_time": 0,
             "start_retries": 3,
 
             "stop_signal": "TERM",

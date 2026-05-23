@@ -1,7 +1,53 @@
 #include "Process.hpp"
 #include "TaskConfig.hpp"
+#include <fcntl.h>
 
-void	Process::update()
+int Process::start()
+{
+	if (_state != State::STOPPED && _state != State::FATAL)
+	{
+		std::cout << "Process already running" << std::endl;
+		return (-1);
+	}
+
+	_transition(State::STARTING);
+
+	return (_start());
+}
+
+int	Process::stop()
+{
+	if (_pid == 0)
+	{
+		std::cout << "Process not running" << std::endl;
+		return (-1);
+	}
+
+	kill(_pid, _config->stop_signal);
+
+	_transition(State::STOPPING);
+	return (0);
+}
+
+int	Process::restart()
+{
+	_restart = true;
+	stop();
+	return (0);
+}
+
+void Process::restart_backoff()
+{
+	_retry_count++;
+	restart();
+}
+
+int		status()
+{
+	return (0);
+}
+
+void Process::update()
 {
     int		status = 0;
 
@@ -147,6 +193,46 @@ void	Process::_update_stopped()
 			return ;
 		}
 	}
+}
+
+void	Process::_transition(Process::State next_state)
+{
+	logger << Logger::DEBUG << "Process " << _config->name << " transition : " << _state << " -> " << next_state << ENDL;
+	_state = next_state;
+}
+
+int	Process::_start()
+{
+	_start_timestamp = _time.get();
+
+	_pid = fork();
+	if (_pid == -1)
+		return (-1);
+	if (_pid != 0)
+		return (_pid);
+    
+    int fd_out = open(_config->stdout_.c_str(), O_APPEND | O_CREAT | O_WRONLY);
+    int fd_err = open(_config->stderr_.c_str(), O_APPEND | O_CREAT | O_WRONLY);
+    
+    if (fd_out != -1)
+    {
+        dup2(fd_out, 1);
+        close(fd_out);
+    }
+    else
+        logger << Logger::ERROR << "Unable to open '" << _config->stdout_ << "'." << ENDL;
+    if (fd_err != -1)
+    {
+        dup2(fd_err, 2);
+        close(fd_err);
+    }
+    else
+        logger << Logger::ERROR << "Unable to open '" << _config->stderr_ << "'." << ENDL;
+
+    chdir(_config->working_dir.c_str());
+
+	execve(_config->cmds[0].c_str(), (char *const *)c_str_array(_config->cmds), (char *const *)get_env(_config->env));
+	exit(EXIT_FAILURE);
 }
 
 std::ostream	&operator<<(std::ostream &s, const Process::State &state)
