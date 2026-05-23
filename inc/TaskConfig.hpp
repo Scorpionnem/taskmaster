@@ -17,6 +17,7 @@ class TaskConfig
 		};
 
 		TaskConfig(void);
+		bool operator==(const TaskConfig &other);
 
 		std::string							name = "task";
 		std::vector<std::string>			cmds;

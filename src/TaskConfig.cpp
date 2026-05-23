@@ -9,6 +9,26 @@
 
 TaskConfig::TaskConfig(void) {}
 
+bool TaskConfig::operator==(const TaskConfig &other)
+{
+    return (
+        this->cmds == other.cmds
+        && this->num_procs == other.num_procs
+        && this->auto_start == other.auto_start
+        && this->auto_restart == other.auto_restart
+        && this->exit_codes == other.exit_codes
+        && this->start_time == other.start_time
+        && this->start_retries == other.start_retries
+        && this->stop_signal == other.stop_signal
+        && this->stop_time == other.stop_time
+        && this->stdout_ == other.stdout_
+        && this->stderr_ == other.stderr_
+        && this->env == other.env
+        && this->working_dir == other.working_dir
+        && this->umask == other.umask
+    );
+}
+
 std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName)
 {
     std::map<std::string, TaskConfig *> configs;
