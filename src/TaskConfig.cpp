@@ -1,0 +1,103 @@
+#include "TaskConfig.hpp"
+#include "JSONReader.hpp"
+#include "Logger.hpp"
+
+#include <signal.h>
+#include <iostream>
+#include <fstream>
+#include <map>
+
+
+TaskConfig::TaskConfig(void) {}
+
+std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName)
+{
+    std::map<std::string, TaskConfig *> configs;
+
+	std::fstream file(fileName.c_str());
+	if (!file.is_open())
+		throw std::runtime_error("Unable to open file.");
+
+	std::string content;
+	std::getline(file, content, '\0');
+
+    JSONReader reader(content);
+
+    JSONReader tasks = reader["tasks"];
+
+    // Map for Restart Modes
+    std::map<std::string, TaskConfig::RestartMode> restartModeMap;
+    restartModeMap["always"] = TaskConfig::RestartMode::ALWAYS;
+    restartModeMap["never"] = TaskConfig::RestartMode::NEVER;
+    restartModeMap["on_error"] = TaskConfig::RestartMode::ON_ERROR;
+
+    // Map for Signals
+    std::map<std::string, int> signalMap;
+    signalMap["sigint"] = SIGINT;
+    signalMap["sigterm"] = SIGTERM;
+    signalMap["sighup"] = SIGHUP;
+    signalMap["sigint"] = SIGINT;
+    signalMap["sigquit"] = SIGQUIT;
+    signalMap["sigill"] = SIGILL;
+    signalMap["sigtrap"] = SIGTRAP;
+    signalMap["sigabrt"] = SIGABRT;
+    signalMap["sigiot"] = SIGIOT;
+    signalMap["sigbus"] = SIGBUS;
+    signalMap["sigfpe"] = SIGFPE;
+    signalMap["sigusr1"] = SIGUSR1;
+    signalMap["sigsegv"] = SIGSEGV;
+    signalMap["sigusr2"] = SIGUSR2;
+    signalMap["sigpipe"] = SIGPIPE;
+    signalMap["sigalrm"] = SIGALRM;
+    signalMap["sigterm"] = SIGTERM;
+    signalMap["sigstkflt"] = SIGSTKFLT;
+    signalMap["sigcont"] = SIGCONT;
+    signalMap["sigtstp"] = SIGTSTP;
+    signalMap["sigttin"] = SIGTTIN;
+    signalMap["sigttou"] = SIGTTOU;
+    signalMap["sigurg"] = SIGURG;
+    signalMap["sigxcpu"] = SIGXCPU;
+    signalMap["sigxfsz"] = SIGXFSZ;
+    signalMap["sigvtalrm"] = SIGVTALRM;
+    signalMap["sigprof"] = SIGPROF;
+    signalMap["sigwinch"] = SIGWINCH;
+    signalMap["sigpoll"] = SIGPOLL;
+    signalMap["sigio"] = SIGIO;
+    signalMap["sigpwr"] = SIGPWR;
+    signalMap["sigsys"] = SIGSYS;
+
+    for (auto taskName : tasks.keys())
+    {
+        JSONReader configData = tasks.get(taskName);
+        TaskConfig *config = new TaskConfig;
+
+        try {
+            config->name = taskName;
+            for (auto cmd : configData["cmds"].values())
+                config->cmds.push_back(cmd.toString());
+            config->num_procs = configData["num_procs"].toInt();
+            config->auto_start = configData["auto_start"].toBool();
+            
+            config->auto_restart = restartModeMap[configData["auto_restart"].toString()];
+            for (auto exit_code : configData["exit_codes"].values())
+                config->exit_codes.push_back(exit_code.toInt());
+            config->start_time = configData["start_time"].toInt();
+            config->start_retries = configData["start_retries"].toInt();
+            config->stop_signal = signalMap[configData["stop_signal"].toString()];
+            config->stop_time = configData["stop_time"].toInt();
+            config->stdout_ = configData["stdout"].toString();
+            config->stderr_ = configData["stderr"].toString();
+            for (auto key : configData["env"].keys())
+                config->env[key] = configData["env"][key].toString();
+            config->working_dir = configData["working_dir"].toString();
+            config->umask = configData["umask"].toInt();
+
+            configs[taskName] = config;
+        } catch (JSONReader::JSONReaderError) {
+            logger << Logger::ERROR << "Unable to load task '" << taskName << "'!" << ENDL;
+            delete config;
+        }
+    }
+
+    return configs;
+}

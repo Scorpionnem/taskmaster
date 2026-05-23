@@ -3,11 +3,11 @@
         "server":  {
             "cmds": ["/usr/bin/python3", "main.py"],
 
-            "num_procs": 2,
+            "num_procs": 1,
             "auto_start": true,
 
-            "auto_restart": "unexpected",
-            "exitcodes": [0, 2],
+            "auto_restart": "on_error",
+            "exit_codes": [0, 2],
 
             "start_time": 5,
             "start_retries": 3,
@@ -19,13 +19,11 @@
             "stderr": "./stderr.log",
 
             "env": {
-                "USER": "mbatty",
-                "DATA": "123"
             },
 
-            "working_dir": "/var/www/html",
+            "working_dir": "./examples",
 
-            "umask": "022"
+            "umask": 22
         }
     }
 }
