@@ -160,7 +160,7 @@ void	Process::_update_exited()
 
 	if (_force_stop)
 	{
-    	_transition(State::STOPPED);
+        _transition(State::STOPPED);
 		return ;
 	}
     if ((_config->auto_restart == TaskConfig::RestartMode::ALWAYS)
@@ -271,6 +271,7 @@ int	Process::_start()
     else
         logger << Logger::ERROR << "Unable to open '" << _config->stderr_ << "'." << ENDL;
 
+    umask(_config->umask);
     chdir(_config->working_dir.c_str());
 
 	execve(_config->cmds[0].c_str(), (char *const *)c_str_array(_config->cmds), (char *const *)get_env(_config->env));
