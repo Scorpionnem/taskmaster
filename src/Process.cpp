@@ -25,7 +25,7 @@ inline const char	**get_env(const std::map<std::string, std::string> env)
 
 int Process::start(bool reset_try)
 {
-	if (_state != State::STOPPED && _state != State::FATAL)
+	if (_state != State::STOPPED)
 	{
 		logger << Logger::ERROR << "Process already running!" << ENDL;
 		return (-1);
@@ -298,10 +298,6 @@ std::ostream	&operator<<(std::ostream &s, const Process::State &state)
             s << "EXITED"; break;
         case Process::State::BACKOFF:
             s << "BACKOFF"; break;
-        case Process::State::FATAL:
-            s << "FATAL"; break;
-        case Process::State::UNKNOWN:
-            s << "UNKNOWN"; break;
     }
     return (s);
 }

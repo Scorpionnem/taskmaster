@@ -30,8 +30,6 @@ class	Process
 			EXITED,
 			// Start failed too quickly, retry pending
 			BACKOFF,
-			FATAL,
-			UNKNOWN
 		};
 		friend std::ostream	&operator<<(std::ostream &s, const Process::State &state);
 		/*
@@ -54,7 +52,7 @@ class	Process
 		int		start(bool reset_try = false);
 		int		stop();
 		int		force_stop();
-		int		restart();
+		int		restart(bool reset_try = false);
 		void	restart_backoff();
 		int		status();
 		void	update();
