@@ -1,5 +1,6 @@
 obj/
 log/
+*.log
 *.o
 *.d
 
