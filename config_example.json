@@ -3,16 +3,16 @@
         "server":  {
             "cmds": ["/usr/bin/python3", "main.py"],
 
-            "num_procs": 10,
+            "num_procs": 1,
             "auto_start": true,
 
-            "auto_restart": "always",
+            "auto_restart": "never",
             "exit_codes": [0, 2],
 
             "start_time": 0,
             "start_retries": 3,
 
-            "stop_signal": "TERM",
+            "stop_signal": "sigterm",
             "stop_time": 10,
 
             "stdout": "./stdout.log",
