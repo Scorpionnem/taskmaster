@@ -86,12 +86,15 @@ void Process::update()
 {
     int		status = 0;
 
-    int		wpid = waitpid(_pid, &status, WNOHANG);
-
-    if (wpid != 0)
+    if (_state == State::RUNNING || _state == State::STARTING || _state == State::STOPPING)
     {
-        _return = WEXITSTATUS(status);
-        _exited = WIFEXITED(status);
+        int		wpid = waitpid(_pid, &status, WNOHANG);
+    
+        if (wpid != 0)
+        {
+            _return = WEXITSTATUS(status);
+            _exited = WIFEXITED(status);
+        }
     }
 
     switch (_state)
