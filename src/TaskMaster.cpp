@@ -123,26 +123,17 @@ void TaskMaster::_user_command(const std::string &input)
 		return ;
 	}
 	else if (command == "start")
-	{
-		// start [task name]
-		return ;
-	}
+		this->_start_task(s);
 	else if (command == "stop")
-	{
-		// stop [task name]
-		return ;
-	}
+		this->_stop_task(s);
 	else if (command == "restart")
-	{
-		// restart [task name]
-		return ;
-	}
+		this->_restart_task(s);
 	else if (command == "status")
 		this->_status(s);
 	else if (command == "quit")
 		this->_stop();
 	else if (command == "reload")
-		this->_reload();
+		this->_reload_config();
 	else {
 		if (!command.empty())
 			std::cout << "Command not found!" << std::endl;
@@ -154,7 +145,7 @@ void TaskMaster::_stop()
 	_running = false;
 }
 
-void TaskMaster::_reload()
+void TaskMaster::_reload_config()
 {
 	std::cout << "Reloading config..." << std::endl;
 	logger << Logger::INFO << "Reloading config..." << ENDL;
@@ -283,4 +274,84 @@ void TaskMaster::_status(std::istringstream &s)
 			}
 		}
 	}
+}
+
+void TaskMaster::_start_task(std::istringstream &s) {
+	std::string taskName;
+
+	if (!(s >> taskName))
+	{
+		std::cerr << "Please provide an argument!" << std::endl;
+		return ;
+	}
+
+	if (_tasks.find(taskName) == _tasks.end())
+	{
+		std::cerr << "Task '" << taskName << "' not found!" << std::endl;
+		return ;
+	}
+
+	uint startedProcesses = 0;
+	for (auto process: _tasks[taskName].second)
+	{
+		if (!process->is_alive())
+		{
+			process->start(true);
+			startedProcesses++;
+		}
+	}
+	if (startedProcesses)
+		std::cout << "Started " << startedProcesses << " processes for task '" << taskName << "'!" << std::endl;
+	else
+		std::cout << "No processes started, " << _tasks[taskName].second.size() << " processes already running!" << std::endl;
+}
+
+void TaskMaster::_restart_task(std::istringstream &s) {
+	std::string taskName;
+
+	if (!(s >> taskName))
+	{
+		std::cerr << "Please provide an argument!" << std::endl;
+		return ;
+	}
+
+	if (_tasks.find(taskName) == _tasks.end())
+	{
+		std::cerr << "Task '" << taskName << "' not found!" << std::endl;
+		return ;
+	}
+
+	uint stoppedProcesses = 0;
+	for (auto process: _tasks[taskName].second)
+		process->restart(true);
+	std::cout << _tasks[taskName].second.size() << " processes restarted!" << std::endl;
+}
+void TaskMaster::_stop_task(std::istringstream &s) {
+	std::string taskName;
+
+	if (!(s >> taskName))
+	{
+		std::cerr << "Please provide an argument!" << std::endl;
+		return ;
+	}
+
+	if (_tasks.find(taskName) == _tasks.end())
+	{
+		std::cerr << "Task '" << taskName << "' not found!" << std::endl;
+		return ;
+	}
+
+	uint stoppedProcesses = 0;
+	for (auto process: _tasks[taskName].second)
+	{
+		if (process->is_alive())
+		{
+			process->stop();
+			stoppedProcesses++;
+		}
+	}
+	if (stoppedProcesses)
+		std::cout << "Stopped " << stoppedProcesses << " processes for task '" << taskName << "'!" << std::endl;
+	else
+		std::cout << "No processes stopped, " << _tasks[taskName].second.size() << " processes already stopped!" << std::endl;
 }

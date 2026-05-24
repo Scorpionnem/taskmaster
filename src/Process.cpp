@@ -23,13 +23,16 @@ inline const char	**get_env(const std::map<std::string, std::string> env)
 	return (c_str_array(new_env));
 }
 
-int Process::start()
+int Process::start(bool reset_try)
 {
 	if (_state != State::STOPPED && _state != State::FATAL)
 	{
 		logger << Logger::ERROR << "Process already running!" << ENDL;
 		return (-1);
 	}
+
+    if (reset_try)
+        _retry_count = 0;
 
 	_transition(State::STARTING);
 
@@ -53,13 +56,16 @@ int	Process::stop()
 	}
 
 	kill(_pid, _config->stop_signal);
-
+    _stop_timestamp = _time.get();
 	_transition(State::STOPPING);
 	return (0);
 }
 
-int	Process::restart()
+int	Process::restart(bool reset_try)
 {
+    if (reset_try)
+        _retry_count = 0;
+
 	_restart = true;
 	stop();
 	return (0);

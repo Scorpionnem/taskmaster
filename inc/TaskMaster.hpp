@@ -20,7 +20,10 @@ class	TaskMaster
 		void	_user_loop();
 		void	_user_command(const std::string &input);
 		void	_stop();
-		void	_reload();
+		void	_start_task(std::istringstream &s);
+		void	_restart_task(std::istringstream &s);
+		void	_stop_task(std::istringstream &s);
+		void	_reload_config();
 		void	_status(std::istringstream &s);
 
 	private:

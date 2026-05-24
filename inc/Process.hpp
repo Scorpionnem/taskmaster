@@ -51,7 +51,7 @@ class	Process
 		{
 		}
 
-		int		start();
+		int		start(bool reset_try = false);
 		int		stop();
 		int		force_stop();
 		int		restart();
@@ -80,8 +80,8 @@ class	Process
 		int		_retry_count = 0;
 
 		Chrono	_time;
-		double	_start_timestamp;
-		double	_stop_timestamp;
+		double	_start_timestamp = 0;
+		double	_stop_timestamp = 0;
 		bool	_expected_exit;
 
 		int			_return = 0;

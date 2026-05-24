@@ -2,9 +2,12 @@
 #include "JSONReader.hpp"
 #include "Logger.hpp"
 
+#include <csignal>
+#include <exception>
 #include <signal.h>
 #include <fstream>
 #include <map>
+#include <stdexcept>
 
 
 TaskConfig::TaskConfig(void) {}
@@ -57,6 +60,7 @@ std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName
 
     // Map for Signals
     std::map<std::string, int> signalMap;
+    signalMap["sigkill"] = SIGKILL;
     signalMap["sigint"] = SIGINT;
     signalMap["sigterm"] = SIGTERM;
     signalMap["sighup"] = SIGHUP;
@@ -102,11 +106,15 @@ std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName
             config->num_procs = configData["num_procs"].toInt();
             config->auto_start = configData["auto_start"].toBool();
             
+            if (restartModeMap.find(configData["auto_restart"].toString()) == restartModeMap.end())
+                throw std::runtime_error("Invalid restart mode!");
             config->auto_restart = restartModeMap[configData["auto_restart"].toString()];
             for (auto exit_code : configData["exit_codes"].values())
                 config->exit_codes.push_back(exit_code.toInt());
             config->start_time = configData["start_time"].toInt();
             config->start_retries = configData["start_retries"].toInt();
+            if (signalMap.find(configData["stop_signal"].toString()) == signalMap.end())
+                throw std::runtime_error("Invalid stop signal!");
             config->stop_signal = signalMap[configData["stop_signal"].toString()];
             config->stop_time = configData["stop_time"].toInt();
             if (configData["stdout"].isString())
@@ -119,8 +127,8 @@ std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName
             config->umask = configData["umask"].toInt();
 
             configs[taskName] = config;
-        } catch (JSONReader::JSONReaderError) {
-            logger << Logger::ERROR << "Unable to load task '" << taskName << "'!" << ENDL;
+        } catch (std::exception &e) {
+            logger << Logger::ERROR << "Unable to load task '" << taskName << "'! (" << e.what() << ")." << ENDL;
             delete config;
         }
     }
