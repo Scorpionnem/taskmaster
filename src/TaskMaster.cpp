@@ -1,5 +1,6 @@
 #include "TaskMaster.hpp"
 #include "Process.hpp"
+#include <atomic>
 #include <unistd.h>
 #include <vector>
 #include <readline/readline.h>
@@ -53,6 +54,14 @@ void TaskMaster::start(void)
 	_loop();
 }
 
+std::atomic_bool	sighup_fired;
+
+void	sighup_handler(int s)
+{
+	(void)s;
+	sighup_fired = true;
+}
+
 void	sig_handler(int s)
 {
 	sig = s;
@@ -60,9 +69,18 @@ void	sig_handler(int s)
 
 void TaskMaster::_loop()
 {
+	sighup_fired = false;
+
+	signal(SIGHUP, sighup_handler);
+
 	while (_running)
 	{
 		_lock.lock();
+		if (sighup_fired)
+		{
+			sighup_fired = false;
+			_reload_config();
+		}
 		for (auto task : _tasks)
 			for (auto process : task.second.second)
 				process->update();
