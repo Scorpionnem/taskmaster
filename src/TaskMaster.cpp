@@ -85,6 +85,7 @@ void TaskMaster::_loop()
 			for (auto process : task.second.second)
 				process->update();
 		_lock.unlock();
+		// usleep(100); # DEBUG PURPOSE
 	}
 	_user.join(); // wait for user to finish
 	while (!_all_stopped)
@@ -167,7 +168,15 @@ void TaskMaster::_reload_config()
 {
 	std::cout << "Reloading config..." << std::endl;
 	logger << Logger::INFO << "Reloading config..." << ENDL;
-	std::map<std::string, TaskConfig *> configs = TaskConfig::get_configs(_configFile);
+	std::map<std::string, TaskConfig *> configs;
+	try {
+		configs = TaskConfig::get_configs(_configFile);
+	} catch (std::exception &e)
+	{
+		logger << Logger::ERROR << "Unable to reload config! (" << e.what() << ")" << ENDL;
+		std::cerr << "Unable to reload config! (" << e.what() << ")" << std::endl;
+		return;
+	}
 
 	std::vector<std::string> taskToRemove;
 
@@ -217,8 +226,10 @@ void TaskMaster::_reload_config()
 			}
 			std::cout << "Task '" << taskName << "' restarted!" << std::endl;
 		}
-		else
+		else {
 			std::cout << "Task '" << taskName << "' nothing to do." << std::endl;
+			delete configs[taskName];
+		}
 	}
 
 	// Check for the new task
