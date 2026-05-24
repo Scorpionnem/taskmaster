@@ -1,0 +1,28 @@
+{
+    "tasks": {
+        "die_three_times": {
+            "cmds": ["/usr/bin/python3", "main.py"],
+
+            "num_procs": 1,
+            "auto_start": true,
+
+            "auto_restart": "on_error",
+            "exit_codes": [0],
+
+            "start_time": 67,
+            "start_retries": 3,
+
+            "stop_signal": "sigint",
+            "stop_time": 1,
+
+            "stdout": "./die_three_times.log",
+            "stderr": null,
+
+            "env": {},
+
+            "working_dir": "./examples/die_three_times",
+
+            "umask": 22
+        }
+    }
+}

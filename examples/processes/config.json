@@ -1,0 +1,28 @@
+{
+    "tasks": {
+        "processes": {
+            "cmds": ["/usr/bin/python3", "main.py"],
+
+            "num_procs": 67,
+            "auto_start": true,
+
+            "auto_restart": "never",
+            "exit_codes": [0],
+
+            "start_time": 0,
+            "start_retries": 0,
+
+            "stop_signal": "sigint",
+            "stop_time": 1,
+
+            "stdout": "./processes.log",
+            "stderr": null,
+
+            "env": {},
+
+            "working_dir": "./examples/processes",
+
+            "umask": 22
+        }
+    }
+}

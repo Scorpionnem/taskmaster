@@ -1,5 +1,3 @@
-import time
-
 def main() -> None:
     print("Hello, World!")
 

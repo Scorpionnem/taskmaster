@@ -1,0 +1,33 @@
+{
+    "tasks": {
+        "environnement": {
+            "cmds": ["/usr/bin/python3", "main.py"],
+
+            "num_procs": 1,
+            "auto_start": true,
+
+            "auto_restart": "never",
+            "exit_codes": [0],
+
+            "start_time": 0,
+            "start_retries": 0,
+
+            "stop_signal": "sigint",
+            "stop_time": 1,
+
+            "stdout": "./environnement.log",
+            "stderr": null,
+
+            "env": {
+                "Hello": "World",
+                "mbatty": "Mewen",
+                "ehode": "Étienne",
+                "skibidi": "42"
+            },
+
+            "working_dir": "./examples/environnement",
+
+            "umask": 22
+        }
+    }
+}
