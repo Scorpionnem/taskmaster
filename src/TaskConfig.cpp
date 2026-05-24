@@ -103,6 +103,8 @@ std::map<std::string, TaskConfig *> TaskConfig::get_configs(std::string fileName
             config->name = taskName;
             for (auto cmd : configData["cmds"].values())
                 config->cmds.push_back(cmd.toString());
+            if (config->cmds.size() == 0)
+                throw std::runtime_error("cmds cannot be empty!");
             config->num_procs = configData["num_procs"].toInt();
             config->auto_start = configData["auto_start"].toBool();
             
