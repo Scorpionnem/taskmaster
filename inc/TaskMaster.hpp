@@ -30,4 +30,5 @@ class	TaskMaster
 		std::thread	_user;
 		
 		std::atomic_bool	_running;
+		std::atomic_bool	_all_stopped;
 };

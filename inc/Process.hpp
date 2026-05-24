@@ -47,10 +47,13 @@ class	Process
 
 			_time.start();
 		}
-		~Process() {}
+		~Process()
+		{
+		}
 
 		int		start();
 		int		stop();
+		int		force_stop();
 		int		restart();
 		void	restart_backoff();
 		int		status();
@@ -85,4 +88,5 @@ class	Process
 		bool		_exited = false;
 
 		bool		_restart = false;
+		bool		_force_stop = false;
 };

@@ -2,12 +2,23 @@
 #include "Process.hpp"
 #include <unistd.h>
 #include <vector>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <signal.h>
+
+int	sig = 0;
 
 TaskMaster::TaskMaster(const std::string &configFile) {
 	_configFile = configFile;
+	_all_stopped = false;
 }
 
 TaskMaster::~TaskMaster(void) {
+	for (auto task : _tasks)
+	{
+		for (auto process : task.second.second)
+			process->force_stop();
+	}
 	for (auto task : _tasks)
 	{
 		delete task.second.first;
@@ -42,6 +53,11 @@ void TaskMaster::start(void)
 	_loop();
 }
 
+void	sig_handler(int s)
+{
+	sig = s;
+}
+
 void TaskMaster::_loop()
 {
 	while (_running)
@@ -53,23 +69,43 @@ void TaskMaster::_loop()
 		_lock.unlock();
 	}
 	_user.join(); // wait for user to finish
+	while (!_all_stopped)
+	{
+		_all_stopped = true;
+		for (auto task : _tasks)
+			for (auto process : task.second.second)
+			{
+				process->force_stop();
+				process->update();
+				if (process->state() != Process::State::STOPPED)
+					_all_stopped = false;
+			}
+	}
 }
 
 void TaskMaster::_user_loop()
 {
+	signal(SIGINT, SIG_IGN);
+
 	while (_running)
 	{
-		std::string	input;
+		char	*line;
 
-		std::cout << "\r$> " << std::flush;
-		if (std::getline(std::cin, input))
+		line = readline("$>");
+		if (line)
 		{
+			std::string	input(line);
+
 			_lock.lock();
 			_user_command(input);
 			_lock.unlock();
+
+			add_history(line);
+			free(line);
+
+			if (sig != 0)
+				_running = false;
 		}
-		else
-			break ;
 		usleep(1000);
 	}
 }

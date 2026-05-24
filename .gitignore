@@ -7,3 +7,6 @@ taskmaster
 en.subject.pdf
 
 compile_commands.json
+stderr.log
+stdout.log
+

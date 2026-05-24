@@ -2,7 +2,7 @@ NAME :=	taskmaster
 
 CXX :=	c++
 CXXFLAGS :=	-g -MP -MMD # -Wall -Wextra -Werror -std=c++17 # -fsanitize=address -fno-omit-frame-pointer
-LFLAGS :=
+LFLAGS :=	-lreadline
 
 ###
 

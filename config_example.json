@@ -6,7 +6,7 @@
             "num_procs": 10,
             "auto_start": true,
 
-            "auto_restart": "on_error",
+            "auto_restart": "always",
             "exit_codes": [0, 2],
 
             "start_time": 0,

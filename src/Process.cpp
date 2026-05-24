@@ -36,8 +36,16 @@ int Process::start()
 	return (_start());
 }
 
+int	Process::force_stop()
+{
+	_force_stop = true;
+	return (stop());
+}
+
 int	Process::stop()
 {
+	if (_state == State::STOPPED)
+		return (0);
 	if (_pid == 0)
 	{
 		logger << Logger::ERROR << "Process not running" << ENDL;
@@ -144,6 +152,11 @@ void	Process::_update_exited()
     _return = 0;
     _exited = false;
 
+	if (_force_stop)
+	{
+    	_transition(State::STOPPED);
+		return ;
+	}
     if ((_config->auto_restart == TaskConfig::RestartMode::ALWAYS)
         || !expected && _config->auto_restart == TaskConfig::RestartMode::ON_ERROR)
     {
@@ -200,6 +213,8 @@ void	Process::_update_stopped()
 	_return = 0;
     _exited = false;
 
+	if (_force_stop)
+		return ;
 	if (_restart)
 	{
 		_restart = false;
